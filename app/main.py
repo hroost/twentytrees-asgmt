@@ -45,7 +45,7 @@ def health():
     return {"status": "ok"}
 
 
-@app.post("/analyze_shared_crop")
+@app.get("/analyze_shared_crop")
 async def process_shared_crop(image_path: str):
 
     try:
@@ -69,12 +69,13 @@ async def recive_file(file: UploadFile):
     if file.content_type not in ["image/tiff"]:
         raise HTTPException(status_code=415, detail="Unsupported file type. Expected image/tiff.")
 
-    # saving img to disk because lib expecting a path
-    with open(f"{upload_path}/{file.filename}", "wb") as buffer:
-        content = await file.read()
-        buffer.write(content)
-
     try:
+        # saving img to disk because lib expecting a local path
+        with open(f"{upload_path}/{file.filename}", "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+
+
         res = utils.infer_image(file_path=f"{upload_path}/{file.filename}", plot=False)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Something went wrong. Err: {e}")
