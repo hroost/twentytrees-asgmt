@@ -3,4 +3,4 @@ __pycache__
 venv
 *.tif
 .DS_Store
-.pickle
+*.pickle
