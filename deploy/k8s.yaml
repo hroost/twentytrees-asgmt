@@ -1,0 +1,133 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: twentytrees-asgmt
+  labels:
+    name: twentytrees-asgmt
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: analyzer-satelite-data-pvc
+  namespace: twentytrees-asgmt
+spec:
+     accessModes:
+     - ReadWriteOnce
+     resources:
+       requests:
+         storage: 10G
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: analyzer-model-data-pvc
+  namespace: twentytrees-asgmt
+spec:
+     accessModes:
+     - ReadWriteOnce
+     resources:
+       requests:
+         storage: 10G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analyzer-depl
+  namespace: twentytrees-asgmt
+  labels:
+    app: analyzer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analyzer
+  template:
+    metadata:
+      labels:
+        app: analyzer
+    spec:
+
+      initContainers:
+      - name: fetch-satelite-data
+        image: yauritux/busybox-curl
+        command: ["/bin/sh", "-c", "curl 'https://20tree-public.s3-eu-west-1.amazonaws.com/candidates/cloudmask/Sentinel2L2A_sen2cor_18TUR_20180812_clouds%3D5.3%25_area%3D99%25.tif' -o /data/Sentinel2L2A_sen2cor_18TUR_20180812_clouds=5.3%_area=99%.tif -z /data/Sentinel2L2A_sen2cor_18TUR_20180812_clouds=5.3%_area=99%.tif -v && curl 'https://62811.selcdn.ru/links/test-crop-512x512.tif' -o /data/test-crop-512x512.tif -z /data/test-crop-512x512.tif -v"]
+        volumeMounts:
+        - name: satelite-data
+          mountPath: "/data"
+
+      - name: fetch-model-data
+        image: yauritux/busybox-curl
+        command: ["/bin/sh", "-c", "curl 'https://20tree-public.s3-eu-west-1.amazonaws.com/candidates/live_model.pickle' -o /data/live_model.pickle -z /data/live_model.pickle -v"]
+        volumeMounts:
+        - name: model-data
+          mountPath: "/data"
+
+      containers:
+      - name: tif-analyzer
+        image: hroost/twentytrees-asgmt:1.fa713c2
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: satelite-data
+          mountPath: "/code/app/satelite"
+          readOnly: true
+        - name: model-data
+          mountPath: "/code/app/model"
+          readOnly: true
+        resources:
+          requests:
+            cpu: 500m
+        #     memory: 128Mi
+        #   limits:
+        #     cpu: 500m
+        #     memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+      volumes:
+      - name: satelite-data
+        persistentVolumeClaim:
+          claimName: analyzer-satelite-data-pvc
+      - name: model-data
+        persistentVolumeClaim:
+          claimName: analyzer-model-data-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analyzer-svc
+  namespace: twentytrees-asgmt
+spec:
+  selector:
+    app: analyzer
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: analyzer-depl
+  namespace: twentytrees-asgmt
+spec:
+  maxReplicas: 5
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 50
+        type: Utilization
+    type: Resource
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: analyzer-depl

@@ -4,3 +4,8 @@ venv
 *.tif
 .DS_Store
 *.pickle
+.backup
+*.tfstate
+.terraform
+*.tfstate.backup
+*.tfvars
