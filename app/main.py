@@ -59,6 +59,10 @@ async def process_shared_crop(image_path: str):
         raise HTTPException(status_code=500, detail=f"Something went wrong. Err: {e}")
 
 
+##
+## WIP
+##
+
 @app.post("/analyze_uploaded_crop")
 async def recive_file(file: UploadFile):
 
@@ -86,11 +90,9 @@ async def recive_file(file: UploadFile):
 
     return json.dumps(res.tolist())
 
-
 ##
-## WIP & test
+## WIP
 ##
-
 
 @app.post("/upload")
 async def fetch_image(url: str):
@@ -109,6 +111,10 @@ async def fetch_image(url: str):
 
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Something went wrong. Err: {e}")
+
+##
+## WIP
+##
 
 @app.post("/process")
 async def process_image(image_path: str):
