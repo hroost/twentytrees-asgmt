@@ -1,32 +1,32 @@
-# Assigment
+# Assignment
 
 Hello there 👋
 
 ## What's done
 
 - App using FastAPI. It exposes 5 endpoints:
-  - ```/analyze_shared_crop``` - for analyzing 512px crop of satelite image
+  - ```/analyze_shared_crop``` - for analyzing 512px crop of satellite image
   - ```/metrcis``` - basic prometheus metrics
   - ```/health``` - health check
   - ```/docs``` ```/redoc``` - Swagger UI & ReDoc
 - Dockerfile for building the app
 - simple CI pipeline for building and pushing the image to Docker Hub
 - Terraform code for deploying GKE and app
-- Deployment ready for multi node cluster. As workaround for ReadWriteMany PVC (storage for satelite data and croped 512px images) I'm using NFS server deployment with persistent disk
+- Deployment ready for a multi-node cluster. As a workaround for ReadWriteMany PVC (storage for satellite data and cropped 512px images) I'm using NFS server deployment with persistent disk
 - Horizontal Pod Autoscaler for the app
 
 ## What can be done better
 
 ### at the App code
-- method for sliding though the full satelite image and processing it widow by window (not implemented yet)
+- method for sliding through the full satellite image and processing it widow by window (not implemented yet)
 - some pytests + utilizing them in CI
 - better error handling and error messages
 - logging
 ### at the deployment
-- multi stage docker build to reduce image size, alpine distro as base image for build
+- multi-stage docker build to reduce image size, alpine distro as a base image for build
 - Helm chart for yaml's & using it via Terraform Helm provider
-- Kustomize for yaml manifests (?) [not realy needed because of terraform]
-- Filestore instad of NFS server
+- Kustomize for yaml manifests (?) [not really needed because of terraform]
+- Filestore instead of NFS server
 
 ## Requirements
 
@@ -49,7 +49,7 @@ Hello there 👋
 
 ## How to test:
 
-For demo and testing I'm using pre-uploaded 512px image crop from satelite data. In real life it would be better to use some kind of batch processing to process all the images in the bucket.
+For demo and testing, I'm using a pre-uploaded 512px image crop from satellite data. In real life, it would be better to use some kind of batch processing to process all the images in the bucket.
 
 - run ```kubectl port-forward service/analyzer-svc 8080:8080 -n twentytrees-asgmt```
 - run ```time curl http://localhost:8080/analyze_shared_crop?image_path=satelite/test-crop-512x512.tif```
@@ -63,9 +63,9 @@ On GCP ```n1-standard-2``` instance it takes about 1s to process one image analy
 
 and play with ```wrk``` parameters or/and change the cluster HPA settings
 
-## Ideas for how scale app and deployment
+## Ideas for how to scale app and deployment
 
-- Testing FastAPI with uvicorn + gunicorn for multi-threading instead of using single threaded uvicorn (as recommended in FastAPI docs for containerized deployment)
-- horizonal scaling by increasing initial number of replicas and HPA
+- Testing FastAPI with uvicorn + gunicorn for multi-threading instead of using single-threaded uvicorn (as recommended in FastAPI docs for containerized deployment)
+- horizontal scaling by increasing the initial number of replicas and HPA
 - vertical scaling by using bigger instances
-- Implementig Jobs for batch processing
+- Implementing Jobs for batch processing
