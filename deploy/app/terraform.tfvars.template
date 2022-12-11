@@ -1,0 +1,14 @@
+kubeconfig_path = ""
+
+namespace_name = "twentytrees-asgmt"
+app_name = "analyzer"
+app_image = "hroost/twentytrees-asgmt"
+app_version = "1.fa713c2"
+app_port = 8080
+data_storage_size = "10G"
+autoscale_min = 1
+autoscale_max = 10
+
+satelite_test_file_url = "https://20tree-public.s3-eu-west-1.amazonaws.com/candidates/cloudmask/Sentinel2L2A_sen2cor_18TUR_20180812_clouds%3D5.3%25_area%3D99%25.tif"
+model_test_file_url = "https://20tree-public.s3-eu-west-1.amazonaws.com/candidates/live_model.pickle"
+test_crop_file_url = "https://62811.selcdn.ru/links/test-crop-512x512.tif"

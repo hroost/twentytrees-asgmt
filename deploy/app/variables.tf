@@ -1,6 +1,14 @@
 variable "kubeconfig_path" {
   type = string
 }
+variable "region" {
+  description = "GCP region"
+  type = string
+}
+variable "project_id" {
+  description = "GCP project ID"
+  type = string
+}
 variable "namespace_name" {
   type = string
 }

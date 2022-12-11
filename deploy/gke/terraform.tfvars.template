@@ -1,0 +1,6 @@
+project_id = "CHANGE_ME"
+gke_cluster_name = "assigment"
+region     = "europe-west4-a"
+machine_type = "n1-standard-2"
+ip_cidr_range = "10.10.0.0/24"
+gke_num_nodes = 2
