@@ -4,7 +4,7 @@ Hello there 👋
 
 ## What's done
 
-- App using FastAPI. It exposes 6 endpoints:
+- App using FastAPI. It exposes 5 endpoints:
   - ```/analyze_shared_crop``` - for analyzing 512px crop of satelite image
   - ```/metrcis``` - basic prometheus metrics
   - ```/health``` - health check
@@ -54,7 +54,7 @@ For demo and testing I'm using pre-uploaded 512px image crop from satelite data.
 - run ```kubectl port-forward service/analyzer-svc 8080:8080 -n twentytrees-asgmt```
 - run ```time curl http://localhost:8080/analyze_shared_crop?image_path=satelite/test-crop-512x512.tif```
 
-On GCP ```n1-standard-2``` instance it takes about 1s to process the image.
+On GCP ```n1-standard-2``` instance it takes about 1s to process one image analyze request.
 
 - for load testing you can run for example:
 
@@ -62,3 +62,10 @@ On GCP ```n1-standard-2``` instance it takes about 1s to process the image.
 
 
 and play with ```wrk``` parameters or/and change the cluster HPA settings
+
+## Ideas for how scale app and deployment
+
+- Testing FastAPI with uvicorn + gunicorn for multi-threading instead of using single threaded uvicorn (as recommended in FastAPI docs for containerized deployment)
+- horizonal scaling by increasing initial number of replicas and HPA
+- vertical scaling by using bigger instances
+- Implementig Jobs for batch processing
